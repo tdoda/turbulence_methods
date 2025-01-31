@@ -66,17 +66,6 @@ git repo URLs - use `git` to clone the project on whichever machine you want.
 
 ## Structure of the repository 
 
-This repository is divided into four folders:
-- `data`: data organized in processing levels.
-    - **Level 0**: Raw data collected from the different sensors.
-    - **Level 1**: Raw data stored to NetCDF file where attributes (such as sensors used, units, description of data, etc.) are added to the data. 
-    Quality assurance is performed on the data and QA masks are generated.
-    - **Level 2**: Processed data, this could include calculated parameters, transformed units, resampled or gridded data.
-- `scripts`: scripts used to read the data.
-- `analysis`: further analyses.
-- `references`: relevant scientific papers. 
-- `notes`: anything to share (ideas, summaries, reports of analyses).
-
 ### Folder `data`
 Turbulence data organized in processing levels.
     - **Level 0**: Raw data collected from the different sensors.
@@ -89,12 +78,7 @@ Turbulence data organized in processing levels.
 <br />
 
 ### Folder `scripts`
-Scripts used to read the data
-
-<br />
-
-### Folder `analysis`
-Scripts performing data analysis.
+Scripts used to read the data and perform further analysis.
 
 <br />
 
