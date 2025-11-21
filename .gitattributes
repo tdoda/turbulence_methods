@@ -1,2 +1,7 @@
 *.nc filter=lfs diff=lfs merge=lfs -text
 *.pdf filter=lfs diff=lfs merge=lfs -text
+*.fig filter=lfs diff=lfs merge=lfs -text
+*.mat* filter=lfs diff=lfs merge=lfs -text
+*.P filter=lfs diff=lfs merge=lfs -text
+scripts/**/*.pdf filter=lfs diff=lfs merge=lfs -text
+scripts/**/*.pdf !text !filter !merge !diff
