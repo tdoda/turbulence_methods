@@ -2,7 +2,7 @@
 
 Repository combining different methods to estimate turbulence quantities in lakes and oceans.
 
-Link to the remote repository: https://gitlab.renkulab.io/tomy.doda/turbulence-methods.git
+Link to the remote repository: https://github.com/tdoda/turbulence_methods.git
 
 ## Introduction
 
