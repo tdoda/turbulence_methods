@@ -1,8 +1,4 @@
-%ANALYZE_PROFILES Main script to process microstructure data .P files (VMP,
-%microCTD).
-%
-% T.Doda, last version: 20.01.2026
-%%
+% Analyze profile data
 
 close all
 fclose('all');
@@ -11,46 +7,35 @@ clc
 
 %% Parameters to adapt
 % Campain
-lakename='Zug'; % Options: 'Zug' or 'default' (see load_parameters_Zug function)
+lakename='Geneva'; % Options: 'Zug' or 'default' (see load_parameters_Zug function)
 %instrument='microCTD'; % Options: 'VMP' or 'microCTD'
 %direction = 'down'; % Direction of the profile, options: 'up' and 'down'
-general_data_folder='..\..\data\microCTD\'; % Where fieldwork data is stored
-odas_folder='..\..\functions\odas_v4.4\';
-date_campaign="20260113"; % Should match the date in "load_parameters" function except if "default" is used
+general_data_folder='..\..\data\LakeGeneva\'; % Where fieldwork data is stored
+odas_folder='..\odas_v4.4\';
+date_campaign="20190826"; % Should match the date in "load_parameters" function except if "default" is used
 run_quick_look=false; % Apply quick_look function from Rockland (shear dissipation only)
-modify_cfg=true; % Modify the configuration file (if "false", configuration from .P file is used)
+modify_cfg=false; % Modify the configuration file (if "false", configuration from .P file is used)
 calibrate_FP07=true; % Calibrate FP07
 run_dissip=true; % Compute dissipation based on Bieito's and Sebastiano's script
 cfg_file=''; % Configuration file located in the data folder, if not specified in the parameters
 make_plot_prof = true; % Make profile-related plots.
-ind_plot_spectra = []; % Indices of bins where spectra should be plotted (temperature and shear spectra).
-show_progress=true;
+make_plot_spectra = false; % Make spectra plots (temperature and shear spectra).
+show_progress=false;
 
 addpath(odas_folder)
-addpath("..\..\functions\microstructure\") % Add microstructure functions
-
+addpath("..\microstructure\") % Add microstructure functions
 %% Load metadata
-param=load_parameters_Zug(lakename,date_campaign,general_data_folder);
-%param=load_parameters_Geneva(lakename,date_campaign,general_data_folder);
-param.filename_list={'DAT_059'};
+% param=load_parameters_Zug(lakename,date_campaign,general_data_folder,direction,instrument);
+param=load_parameters_Geneva(lakename,date_campaign,general_data_folder);
 
 if modify_cfg 
     if (~isfield(param,'cfgfile') || strcmp(param.cfgfile,''))
-        if exist('cfg_file','var') && ~strcmp(cfg_file,'')
+        if exist('cfg_file','var')
             param.cfgfile=[param.folder,cfg_file];
         else
             error('A configuration file must be specified')
         end
     end
-end
-
-if ~isfield(param,'space_cfg')
-    param.space_cfg=true;
-end
-
-if ~isfield(param,'atm_press_method')
-    warning("No atm pressure method specified: use offset")
-    param.atm_press_method='offset';
 end
 
 %% Analyze each data file
@@ -67,21 +52,14 @@ for kf=1:length(param.filename_list)
     else
         tmp = [param.info.time_corr num2str(param.info.time_res,'%6.4f') ];
     end
-    folder_out = [param.filename_list{kf} '_' param.info.prof_dir num2str(param.info.dpD,'%3.1f') '_'  param.info.Tspec num2str(param.info.q,'%3.1f') ...
+    folder_out = [param.folder '..\Level2\' param.filename_list{kf} '_' param.info.prof_dir num2str(param.info.dpD,'%3.1f') '_'  param.info.Tspec num2str(param.info.q,'%3.1f') ...
         '_' param.info.int_range '_' tmp '_' param.info.npoles 'pole_nfft' num2str(param.info.num_fft)   ...
         '_' param.info.Nasmyth_spec '_' param.info.noise_corr '\'];
-    folder_L1 = [param.folder '..\Level1\' folder_out];
-    folder_L2 = [param.folder '..\Level2\' folder_out];
-    if exist(folder_L1, 'dir') || exist(folder_L2, 'dir')
-        gohead=input('>>> Warning: the folders already exist, do you want to remove them and proceed (y/n): ','s');
+    if exist(folder_out, 'dir')
+        gohead=input('>>> Warning: the folder already exists, do you want to remove it and proceed (y/n): ','s');
         if strcmpi(gohead,'y')
             rehash()
-            if exist(folder_L1, 'dir')
-                rmdir(folder_L1,'s')
-            end
-            if exist(folder_L2, 'dir')
-                rmdir(folder_L2,'s')
-            end
+            rmdir(folder_out,'s')
         elseif strcmpi(gohead,'n')
             disp('>>> Stop!')
             return
@@ -89,23 +67,21 @@ for kf=1:length(param.filename_list)
             error('>>> Wrong input. Stop')
         end
     end
-    mkdir(folder_L1)
-    mkdir(folder_L2)
+    mkdir(folder_out)
 
     %% 1st conversion to physical units
     default_parameters=odas_p2mat;
     %default_parameters.speed_tau=0.68/0.99999*2/64; % To avoid smoothing W
-    data_prof=odas_p2mat_print([param.folder,param.filename_list{kf},'.P'],false,default_parameters);
+    data_prof=odas_p2mat([param.folder,param.filename_list{kf},'.P'],default_parameters);
    
-    % Save Level 1 data:
-    save([folder_L1,'L1_',param.filename_list{kf},'_',param.info.prof_dir,'.mat'],'data_prof','param')
-    disp('>>> Level 1 data saved!')
-
+   
     %% Modify and patch the config file (data_prof is reloaded)
-    [data_prof,modified_data_file,cfgfile_mod] = get_config(param,data_prof,folder_L2,modify_cfg,kf,param.space_cfg);
+
+    [data_prof,modified_data_file,cfgfile_mod] = get_config(param,data_prof,folder_out,modify_cfg,kf);
     if ~modify_cfg
         param.cfgfile=[param.folder,cfgfile_mod];
     end
+    
     %% Extract the profiles
     % Start and end indices of the profiles
     ind_prof_slow = get_profile(data_prof.P_slow,data_prof.W_slow,param.info.pmin,...
@@ -121,7 +97,7 @@ for kf=1:length(param.filename_list)
     %% Calibration of the fast thermistors (data_prof is reloaded)
 
     if calibrate_FP07
-        [data_prof,cfgfile_cal]=run_calibration_FP07(param,data_prof,param.CTD_T,ind_prof_slow,Nprf,modified_data_file,cfgfile_mod,make_plot_prof,folder_L2);
+        [data_prof,cfgfile_cal]=run_calibration_FP07(param,data_prof,param.CTD_T,ind_prof_slow,Nprf,modified_data_file,cfgfile_mod,make_plot_prof,folder_out);
     end
 
     DATA(kf)=data_prof;
@@ -139,11 +115,11 @@ for kf=1:length(param.filename_list)
         ql_info.despike_sh=param.info.despike_sh;
         ql_info.profile_min_P=param.info.pmin;
         ql_info.profile_min_W=param.info.minvel_detect;
-        ql_info.profile_min_duration=param.info.mindur_detect;  
+        ql_info.profile_min_duration=param.info.mindur_detect;
         if strcmp(param.info.prof_dir,'up')
-            ql_info.vehicle='rvmp'; % Upward profiler 
+            ql_info.vehicle='rvmp'; % Upward VMP
         else
-            ql_info.vehicle='vmp'; % Downward profiler
+            ql_info.vehicle='vmp'; % Downward VMP
         end
         % Other parameters related to fft are kept as default.
         
@@ -158,23 +134,23 @@ for kf=1:length(param.filename_list)
             if isempty(DISS_QL{kprof}) % The profile number specified is larger than the number profiles detected by QUICK_LOOK
                 continue % Leave empty cell
             end
-            DISS_QL{kprof}.approx_bin_size =  DISS_QL{kprof}.diss_length/DISS_QL{kprof}.fs_fast * nanmean (DISS_QL{kprof}.speed);  % in m
+            DISS_QL{kprof}.approx_bin_size =  DISS_QL{kprof}.diss_length * nanmean (DISS_QL{kprof}.speed);  % in m
  
             if make_plot_prof
-                if ~exist([folder_L2,'Figures'],'dir')
-                    mkdir([folder_L2,'Figures'])
+                if ~exist([folder_out,'Figures'],'dir')
+                    mkdir([folder_out,'Figures'])
                 end
                 figHandles = findobj('Type', 'figure');
                 for kfig=1:length(figHandles)
-                    saveas(figHandles(kfig),[folder_L2,'Figures\ql_prof',num2str(kprof),'_fig',num2str(kfig),'.fig'])
-                    exportgraphics(figHandles(kfig),[folder_L2,'Figures\ql_prof',num2str(kprof),'_fig',num2str(kfig),'.png'],'Resolution',400)
+                    saveas(figHandles(kfig),[folder_out,'Figures\ql_prof',num2str(kprof),'_fig',num2str(kfig),'.fig'])
+                    exportgraphics(figHandles(kfig),[folder_out,'Figures\ql_prof',num2str(kprof),'_fig',num2str(kfig),'.png'],'Resolution',400)
                 end
             end
             close all
         end
 
         
-        %save([folder_L2,'quick_look_data.mat'],'DISS_QL')
+        %save([folder_out,'quick_look_data.mat'],'DISS_QL')
 
         clear pmin_ql pmax_ql diss_prof
     end
@@ -217,24 +193,21 @@ for kf=1:length(param.filename_list)
             warning('Not enough samples in the profile %d of %s: profile not considered',...
                 kprof,filename0)
             indremove(end+1)=kprof;
-            if ~isempty(DISS_QL)
-                DISS_QL(kprof)=[];
-            end
             continue
         end
 
         % Correct pressure with respect to the atmospheric pressure for the
         % given profile
-        [data_prof,press_atm]=correct_pressure(data_prof,param,ind_prof_slow,ind_prof_fast,kprof,make_plot_prof,folder_L2);
+        [data_prof,press_atm]=correct_pressure(data_prof,param,ind_prof_slow,ind_prof_fast,kprof,make_plot_prof,folder_out);
 
 
         % Turbulence analysis
         tic
         [BINNED0{counter},SLOW0{counter}, FAST0{counter}] = ...
-            resolve_turbulence(data_prof,kprof,param,folder_L2,counter,make_plot_prof,ind_plot_spectra,run_dissip,show_progress);
+            resolve_turbulence(data_prof,kprof,param,folder_out,counter,make_plot_prof,make_plot_spectra,run_dissip,show_progress);
         toc  
 
-        
+        counter=counter+1;
 
         % ------------------------------------------------------------------
         % Additional script from Sebastiano:
@@ -319,26 +292,18 @@ for kf=1:length(param.filename_list)
         % end
         
         % % Comparison epsilon and diffusivity from sh and T
-        % plot_comparison(BINNED,i,[filename '_' num2str(inp,'%02d')],folder_main,folder_L2)
+        % plot_comparison(BINNED,i,[filename '_' num2str(inp,'%02d')],folder_main,folder_out)
         % % Close figures
         % all_figs = findobj(0, 'type', 'figure');
         % close(setdiff(all_figs,99));
         % i= i+1;
     
-        % Saving each profile as netCDF file:
-        DATA_NC.BINNED=BINNED0{counter};
-        DATA_NC.SLOW=SLOW0{counter};
-        DATA_NC.FAST=FAST0{counter};
-        if ~isempty(DISS_QL)
-            DATA_NC.DISS_QL=DISS_QL{counter};
-        end
-        export_to_netcdf([folder_L2,'..\L2_',param.filename_list{kf},'_',param.info.prof_dir,'_prof',num2str(counter),'.nc'],DATA_NC,param,'L2')
-        
-        counter=counter+1;
+    
+
     end
 
    
-    % Saving the data as .mat file:
+    % Saving the data:
     if Nprf>0
         if exist('BINNED0','var')
             BINNED=BINNED0;
@@ -350,10 +315,10 @@ for kf=1:length(param.filename_list)
             SLOW={};
             FAST={};
         end
-        save([folder_L2,'L2_',param.filename_list{kf},'_',param.info.prof_dir,'.mat'],'BINNED','SLOW','FAST','DISS_QL','param')
-        disp('>>> Level 2 data saved!')
+        save([folder_out,'results_',param.filename_list{kf},'_',param.info.prof_dir,'.mat'],'BINNED','SLOW','FAST','DISS_QL','param')
+        disp('>>> Data saved!')
         % Comparison epsilon and diffusivity from sh and T
-        % plot_comparison(BINNED,[1:length(inPall)],[filename '_all'],folder_main,folder_L2);close all;
+        % plot_comparison(BINNED,[1:length(inPall)],[filename '_all'],folder_main,folder_out);close all;
     else
         warning('No profile for %s: data not saved',param.filename_list{kf})
     end
