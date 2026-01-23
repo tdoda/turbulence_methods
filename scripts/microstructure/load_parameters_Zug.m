@@ -17,17 +17,20 @@ function [param] = load_parameters_Zug(lakename,date,general_data_folder,directi
 
 param.info.mindur_detect = 30; % Minimim duration of a profile [s]
 param.info.minvel_detect=0.1; % Minimum speed for profile detection [m/s]
-param.info.minKT = 1;
+param.info.minKT = 1; % Minimum wavenumber for temperature spectral integration [cpm]
+param.info.minKS = 0.1; % Minimum wavenumber for shear spectral integration [cpm]
+param.info.maxKS = 14; % Maximum wavenumber for shear spectral integration [cpm]
 param.info.fAA = 90; % ~90%*f_AA, where f_AA = 98 Hz
 %param.info.Tmethod = 'B'; % Options: 'B'=Batchelor; 'K'=Kraichnan
 param.info.Tspec = 'K';% Options: 'B'=Batchelor; 'K'=Kraichnan
 param.info.q = 5.26; %3.7; %5.26; %5.26; %2; %1.5; %3.9; %%% q turbulent parameter
-param.info.num_fft = 3; % number of fft lengths (with 50% overlapping): typically 3 or 5
+param.info.num_fft = 3; % number of fft segments (with 50% overlapping by default): typically 3 or 5
+param.info.overlap_pct = 50; % percentage of overlap between fft segments: typically 50%
 param.info.int_range = 'L'; % integration range, options: 'S'=Steinbuck 2009; 'L'=Luketina and Imberger 2001
 param.info.time_corr = 'NAS'; % Options: 'RSI'; 'KOC'= Kocsis (tau=tau0*W^{-0.5}), 'NAS'=Nash et al., 1999 (tau=tau0*W^{-0.12})
 param.info.time_res = 0.0058; %0.0035;  0.0058   %%% 0.0-> no time response correction. Used only if time_corr='KOC' or 'NAS'
 param.info.Nasmyth_spec = 'EPFL';% Options: 'ODAS'=default by RSI; 'EPFL'=Bieito's version
-param.info.noise_corr = 'Goodman'; % Options: none or 'Goodman'
+param.info.noise_corr = 'Goodman'; % Type of denoising correction. Options: none or 'Goodman'
 param.info.npoles = 'single';% Options: 'single' or 'double' -> single-pole or double-pole time response correction of FP07
 param.info.kmax_factor = 1/1.66;
 param.info.despike_sh  = [ 8  0.5 0.04]; % Parameters to remove spikes in shear data (see odas function "despike")
@@ -196,8 +199,6 @@ function [param] = load_campaign_Zug(param,date,general_data_folder)
 % T. Doda, 29.11.2024
 %% Values for all campaigns
 param.info.system = 'Zug';
-param.instrument='VMP';
-param.info.prof_dir = 'down';
 param.info.pmin = 1; % Minimum depth [m] to start profiles (used in function get_profile). It is only used to perform a first detection of the profiles; a more accurate detection is done in correct_pressure().
 param.info.pmax = 180; % Maximum depth [m] of the bin-profiles (not used to detect the profiles, only velocity criterion)
 param.info.dp = 0.5; % Bin overlap [m]
@@ -215,6 +216,9 @@ if strcmp(date,'20211110') % Oscar's campaign #1
     % Use shear sensitivities specified in config file: 
     param.cfgfile = 'setup_EAWAG_2018_07_18_OS';
 
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
+
     param.config.T1=true;
     param.config.T2=true;
     param.config.S1=true;
@@ -230,6 +234,8 @@ elseif strcmp(date,'20241204')
     % param.offset_P=-0.33;
     % Use shear sensitivities specified in config file: 
     param.cfgfile = 'setup_EAWAG_Zug_2024_12_04';
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
 
     param.config.T1=true;
     param.config.T2=true;
@@ -248,6 +254,8 @@ elseif strcmp(date,'20241205')
     % param.offset_P=-0.33;
     % Use shear sensitivities specified in config file: 
     param.cfgfile = 'setup_EAWAG_Zug_2024_12_05';
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
 
     param.config.T1=true;
     param.config.T2=true;
@@ -264,6 +272,8 @@ elseif strcmp(date,'20250211')
     % param.offset_P=-0.33;
     % Use shear sensitivities specified in config file: 
     param.cfgfile = 'setup_EAWAG_Zug_2025_02_11';
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
 
     param.config.T1=true;
     param.config.T2=true;
@@ -271,6 +281,83 @@ elseif strcmp(date,'20250211')
     param.config.S2=true;
     param.config.uC1=false;
     param.config.uC2=false;
+%**************************************************************************
+elseif strcmp(date,'20250626') 
+    param.folder = [general_data_folder,'20250626\Level0\'];
+    param.filename_list={'VMP002','VMP003','VMP004','VMP005','VMP006'}; % Several files can be listed here
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'setup_EAWAG_Zug_2025_06_26';
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+%**************************************************************************
+elseif strcmp(date,'20251126') 
+    param.folder = [general_data_folder,'20251126\Level0\'];
+    param.filename_list={'VMP003','VMP004','VMP005','VMP009','VMP010'}; % Several files can be listed here
+
+    % Set P offset and sh probe sensitivity
+    param.offset_P=-0.15;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'setup_EAWAG_Zug_2025_11_26';
+    param.space_cfg=false;
+    param.atm_press_method='min'; % Options: 'cond' (only for upward),'FP07' (only for upward),'offset','min'
+    
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=false;
+    param.config.uC2=false;
+%**************************************************************************
+elseif strcmp(date,'20251127') 
+    param.folder = [general_data_folder,'20251127\Level0\'];
+    param.filename_list={'VMP002','VMP003','VMP004','VMP005','VMP006'}; % Several files can be listed here
+
+    % Set P offset and sh probe sensitivity
+    param.offset_P=-0.15;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'setup_EAWAG_Zug_2025_11_27';
+
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=false;
+    param.config.uC2=false;
+%**************************************************************************
+elseif strcmp(date,'20260113') 
+    param.folder = [general_data_folder,'20260113\Level0\'];
+    param.filename_list={'DAT_053','DAT_055','DAT_057','DAT_059'}; % Several files can be listed here
+
+    % Set P offset and sh probe sensitivity
+    %param.offset_P=0;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_updated';
+    param.atm_press_method='min'; % Options: 'cond' (only for upward),'FP07' (only for upward),'offset','min'
+    
+    param.instrument='microCTD';
+    param.info.prof_dir = 'down';
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+    
+    
 else
     error("Invalid campaign date")
 end

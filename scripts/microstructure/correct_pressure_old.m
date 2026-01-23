@@ -21,7 +21,7 @@ function [data_prof,press_atm]=correct_pressure(data_prof,param,ind_prof_slow,in
 %   press_atm (double): atmospheric pressure subtracted to the raw pressure
 %   to get the pressure relative to the air [dbar].
 %
-% T. Doda based on S. Piccolroaz, last version: 12.01.2026
+% T. Doda based on S. Piccolroaz, 09.12.2024
 %% Compute pressure relative to the atmosphere
 
 % Computed variables:
@@ -58,52 +58,39 @@ if strcmp(param.info.prof_dir,'up')
     ind_prof_slow_x=ind_prof_slow(2,kprof)-round(irange*data_prof.fs_slow):ind_prof_slow(2,kprof)+round(irange*data_prof.fs_slow);
     ind_prof_fast_x=ind_prof_fast(2,kprof)-round(irange*data_prof.fs_fast):ind_prof_fast(2,kprof)+round(irange*data_prof.fs_fast);
 
-    if strcmp(param.atm_press_method,'cond') && isfield(data_prof,'C1_fast') % Use the microC data
-        fprintf(">>> microcond used to detect the surface")
-        istop=ischange(data_prof.gradC1(ind_prof_fast_x),'linear'); % Abrupt changes in the slope of gradC1 (=peak)
-        istop=find(istop==1,1,'first'); istop=istop-2-ceil(abs(0.001/data_prof.W_fast(ind_prof_fast_x(istop))*data_prof.fs_fast));   % shear probes are 1 mm apart from micro cond. Account also for time response (2 counts to be safe)
-    elseif strcmp(param.atm_press_method,'FP07')% Use the FP07 data
-        fprintf(">>> FP07 used to detect the surface")
-        istop=ischange(data_prof.gradT1(ind_prof_fast_x),'linear','maxnumchanges',1); % Abrupt changes in the slope of gradT1 (=peak)
-        istop=find(istop==1,1,'first'); istop=istop-5-ceil(abs(0.003/data_prof.W_fast(ind_prof_fast_x(istop))*data_prof.fs_fast));   % shear probes are 3 mm apart from micro temp. Account also for the time response: 0.007 s *512 count/s ~ 4 counts (5 counts to be safe)
-    elseif strcmp(param.atm_press_method,'min')
-        press_atm=min(data_prof.P_slow_raw); % Miminum pressure of the file = atmospheric pressure
-        istop=[];
-    elseif strcmp(param.atm_press_method,'offset')
-        istop=[]; 
-    else
-        error("Wrong atm pressure method!")
-    end
+    % ***********
+    % OPTION 1: use microC or FP07:
 
-    % Compute press_atm with 'cond', 'FP07' and 'offset' methods:
-    if ~strcmp(param.atm_press_method,'min')
-        if isempty(istop)
-            if ~strcmp(param.atm_press_method,'offset') % Display warning only if offset was not the chosen method
-                warning("No surface detection! Assume press_atm=0.")
-            end
-            press_atm=0; % Assumes that pressure was already corrected with coef0?
-        else
-            press_atm = data_prof.P_fast_raw(ind_prof_fast_x(istop));   % correction
-        end
-    end
+    % if isfield(data_prof,'C1_fast') % Use the microC data
+    %     istop=ischange(data_prof.gradC1(ind_prof_fast_x),'linear'); % Abrupt changes in the slope of gradC1 (=peak)
+    %     istop=find(istop==1,1,'first'); istop=istop-2-ceil(abs(0.001/data_prof.W_fast(ind_prof_fast_x(istop))*data_prof.fs_fast));   % shear probes are 1 mm apart from micro cond. Account also for time response (2 counts to be safe)
+    % else % Use the FP07 data
+    %     istop=ischange(data_prof.gradT1(ind_prof_fast_x),'linear','maxnumchanges',1); % Abrupt changes in the slope of gradT1 (=peak)
+    %     istop=find(istop==1,1,'first'); istop=istop-5-ceil(abs(0.003/data_prof.W_fast(ind_prof_fast_x(istop))*data_prof.fs_fast));   % shear probes are 3 mm apart from micro temp. Account also for the time response: 0.007 s *512 count/s ~ 4 counts (5 counts to be safe)
+    % end
+    % 
+    % if isempty(istop)
+    %     press_atm=0; % Assumes that pressure was already corrected with coef0?
+    % else
+    %     press_atm = data_prof.P_fast_raw(ind_prof_fast_x(istop));   % correction
+    % end
+    % ***********
+    
+    % ***********
+    % OPTION 2: air pressure
+    % Modify by T. Doda, 27.03.2025
+    press_atm=min(data_prof.P_slow_raw); % Miminum pressure of the file = atmospheric pressure
+    istop=[];
+    % ***********
 
+    
     % Correct pressure only for the specific profile
     P_slow_corr = data_prof.P_slow_raw-press_atm;
     P_fast_corr = data_prof.P_fast_raw-press_atm;
     ind_prof_fast_plot=ind_prof_fast_x;
     ind_prof_slow_plot=ind_prof_slow_x*data_prof.fs_fast/data_prof.fs_slow;
 else % Downward profile
-
-    if strcmp(param.atm_press_method,'min')
-        press_atm=min(data_prof.P_slow_raw); % Miminum pressure of the file = atmospheric pressure
-        istop=[];
-    elseif strcmp(param.atm_press_method,'offset')
-        istop=[]; 
-        press_atm=0;
-    else % Methods 'cond' and 'FP07' do not apply to downward profiles
-        error("Wrong atm pressure method!") 
-    end
-
+    press_atm=min(data_prof.P_slow_raw); % Miminum pressure of the file = atmospheric pressure
     P_slow_corr = data_prof.P_slow_raw-press_atm;
     P_fast_corr = data_prof.P_fast_raw-press_atm;
     irange=0.0; % [s], keep the first profiling index
@@ -114,8 +101,10 @@ else % Downward profile
     istop=[];
 end
 
+
+
 fprintf('>>>>> Atmospheric pressure: %0.3f dbar\n',press_atm)
-%% Re-load the profile with pmin=0 (T. Doda: this part was originally in resolve_profile_all)
+%% Re-load the profile with pmin=0 (this part was originally in resolve_profile_all)
 data_prof.ind_prof_slow = get_profile(P_slow_corr,data_prof.W_slow,0,...
     param.info.minvel_detect,param.info.prof_dir,param.info.mindur_detect,data_prof.fs_slow);
 data_prof.ind_prof_fast  = get_profile(P_fast_corr,data_prof.W_fast,0,...
@@ -151,7 +140,7 @@ if make_plot
         plot(ind_prof_fast_plot,normalize(data_prof.T1_fast(ind_prof_fast_plot))/2,'.-r');
         plot(ind_prof_fast_plot,data_prof.W_fast(ind_prof_fast_plot),'.-k');
         plot(ind_prof_fast_plot,data_prof.sh1(ind_prof_fast_plot)/50,'.-m'); hold on
-        plot(ind_prof_slow_plot,normalize(data_prof.(CTD_C)(ind_prof_slow_x))/2,'.-b'); hold on
+        plot(ind_prof_slow_plot,normalize(data_prof.(param.CTD_C)(ind_prof_slow_x))/2,'.-b'); hold on
         plot([ind_prof_fast_plot(1) ind_prof_fast_plot(end)],[0 0],'--k');
         if ~isempty(istop)
             plot([ind_prof_fast_plot(istop) ind_prof_fast_plot(istop)],[-1 1],'--g');

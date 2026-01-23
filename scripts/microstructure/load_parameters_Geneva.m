@@ -229,8 +229,43 @@ if strcmp(date,'20190826') % 24h experiment
     param.SNname='158';
     param.info.prof_dir = 'up';
 %**************************************************************************
-elseif strcmp(date,'20241204') 
+elseif strcmp(date,'20250822_up') 
+    param.folder = [general_data_folder,'20250822\Level0\'];
+    param.filename_list={'DAT_046'};
 
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = '';
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+    
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+%**************************************************************************
+elseif strcmp(date,'20250822_down') 
+    param.folder = [general_data_folder,'20250822\Level0\'];
+    param.filename_list={'DAT_047'};
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = '';
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+    
+    param.SNname='310';
+    param.info.prof_dir = 'down';
 %**************************************************************************
 end
 
