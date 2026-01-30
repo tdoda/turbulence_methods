@@ -18,34 +18,28 @@ The aim of this project is to compare different in-situ methods for the estimati
 
 </font>
 
-
-## Working with the project on the Renku platform (online)
-
-The simplest way to start your project is right from the Renku
-platform - just click on the `Sessions` tab and start a new session.
-This will start an interactive environment right in your browser.
-
 ## Installation on a local repository 
 
-To work with the project anywhere outside the Renku platform,
-click the `Settings` tab where you will find the
-git repo URLs - use `git` to clone the project on whichever machine you want.
+1. To work with the project locally, download all the repository or use `git` to clone the project with the command in GitBash:
 
-**You need to have [git](https://git-scm.com/downloads) and [git-lfs](https://git-lfs.github.com/) installed in order to successfully clone the repository.**
+    `git clone https://github.com/tdoda/turbulence_methods.git`
 
-- Clone the repository to your local machine using the command:
+    The repository will be copied to your current working directory. Note that you need to have [git](https://git-scm.com/downloads) installed in order to successfully clone the repository.
 
-<span style="color:red">*REPLACE WITH LINK TO YOUR REPOSITORY*</span>
+2. Use Python 3 and install the requirements with:
 
- `git clone 
- 
- Note that the repository will be copied to your current working directory.
+    `pip install -r requirements.txt`
 
-- Use Python 3 and install the requirements with:
+    The python version can be checked by running the command `python --version`. In case python is not installed or only an older version of it, it is recommend to install python through the anaconda distribution which can be downloaded [here](https://www.anaconda.com/products/individual). 
 
- `pip install -r requirements.txt`
+## Working with the project online without any installation (Renku)
 
- The python version can be checked by running the command `python --version`. In case python is not installed or only an older version of it, it is recommend to install python through the anaconda distribution which can be downloaded [here](https://www.anaconda.com/products/individual). 
+To run **Python** scripts on the browser (without any installation), you can use the Renku
+platform. Note that this approach **does not** work for Matlab scripts, that can only be ran [locally](#installation-on-a-local-repository) with Matlab installed.
+
+Two options with Renku:
+- Directly run the created session by clicking here: [![launch - renku](https://renkulab.io/renku-badge.svg)](https://renkulab.io/p/tomy.doda/turbulence-methods/sessions/01KG7ZVW6T5HWJCH73HNJFBCB9/start)
+- Look for the project "Turbulence_Methods" on https://renkulab.io/ and start a new session in the `Sessions` tab. This will start an interactive environment right in your browser.
 
 ## Sensors
 <font color='red'>*Include here a description of the sensors used in your project:*
@@ -57,45 +51,38 @@ git repo URLs - use `git` to clone the project on whichever machine you want.
 
 </font>
 
-## Geospatial information
-
-<font color='red'>*Add information about the coordinates of the profiles.*</font>
-
-## Temporal coverage
-
-<font color='red'>*Add information about the field campaigns.*</font>
-
 ## Usage
 ### Processing of microstructure profiles
 <font color='red'>*Procedure to process microCTD and VMP profiles*</font>
 
+## Example data
+
+<font color='red'>*Add information the example datasets (geospatial location, temporal coverage).*</font>
+
 ## Structure of the repository 
 
 ### Folder `data`
-Turbulence data organized in processing levels.
-    - **Level 0**: Raw data collected from the different sensors.
-    - **Level 1**: Raw data stored to NetCDF file where attributes (such as sensors used, units, description of data, etc.) are added to the data. 
-    Quality assurance is performed on the data and QA masks are generated.
-    - **Level 2**: Processed data, this could include calculated parameters, transformed units, resampled or gridded data.
 
-<font color='red'>*Add details about the data here.*</font>
-
-<br />
+Turbulence data organized in processing levels:
+- **Level 0**: Raw data collected from the different sensors.
+- **Level 1**: Raw data stored as NetCDF files where attributes (such as sensors used, units, description of data, etc.) are added to the data. 
+Quality assurance is performed on the data and QA masks are generated.
+- **Level 2**: Processed data, this could include calculated parameters, transformed units, resampled or gridded data.
 
 ### Folder `scripts`
-Scripts used to read the data and perform further analysis.
-
-<br />
+Scripts used to read the data and perform further analysis, organized in the following subfolders:
+- `analyze_VMP_microCTD`: contains Matlab script `analyze_profiles.m` used to process *.P datafiles from Rockland Scientific microstructure profilers (microCTD, VMP).
+- `figures`: Matlab scripts used to make figures.
+- `general_functions`: general Python functions called by other scripts
+- `microstructure`: Matlab functions used to process microstructure profiler data.
+- `odas_v4.4`: ODAS Matlab functions provided by Rockland Scientific. 
 
 ### Folder `references`
-Relevant scientific papers. 
-
-<br />
+Relevant scientific papers about turbulence, organized in topic-based subfolders. 
 
 ### Folder `notes`
-Anything to share (ideas, summaries, reports of analyses).
-
-<br />
+Anything to share (ideas, summaries, reports of analyses):
+- `Turbulence_methods_manual.docx/.pdf`: manual describing the data processing for each turbulence estimation method.
 
  ## Future updates
 
