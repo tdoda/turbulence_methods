@@ -65,6 +65,9 @@ git repo URLs - use `git` to clone the project on whichever machine you want.
 
 <font color='red'>*Add information about the field campaigns.*</font>
 
+## Usage
+### Processing of microstructure profiles
+<font color='red'>*Procedure to process microCTD and VMP profiles*</font>
 
 ## Structure of the repository 
 
@@ -100,11 +103,12 @@ Anything to share (ideas, summaries, reports of analyses).
 
 ## Collaborators
 
-- **Data collection**: Tomy Doda, Damien Bouffard, Bieito Fernández Castro,  Oscar Sepúlveda Steiner
-- **Scripts and analysis**: Tomy Doda, Oscar Sepúlveda Steiner, Bieito Fernández Castro, Sebastiano Piccolroaz, Damien Bouffard
+- **Data collection**: Tomy Doda, Haydn Herrema, Damien Bouffard, Bieito Fernández Castro,  Oscar Sepúlveda Steiner
+- **Scripts and analysis**: Tomy Doda, Haydn Herrema, Oscar Sepúlveda Steiner, Bieito Fernández Castro, Sebastiano Piccolroaz, Damien Bouffard
 
 ## Contact
 - [Tomy Doda](mailto:tomy.doda@unil.ch)
+- [Haydn Herrema](mailto:haydn.herrema@eawag.ch)
 - [Damien Bouffard](mailto:damien.bouffard@eawag.ch)
 
 
