@@ -51,13 +51,41 @@ Two options with Renku:
 
 </font>
 
-## Usage
-### Processing of microstructure profiles
-<font color='red'>*Procedure to process microCTD and VMP profiles*</font>
-
 ## Example data
 
-<font color='red'>*Add information the example datasets (geospatial location, temporal coverage).*</font>
+<font color='red'>*Add information about the example datasets (geospatial location, temporal coverage).*</font>
+
+## Usage
+### Processing data from microstructure profilers
+#### Before deployment
+1. Before any deployment, create a `Level0` folder on the field laptop, where the data of the field campaign will be saved.
+2. Export the configuration file (`*.cfg`) from the profiler and save it in the `Level0` folder. This configuration file will be used by the profiler to collect data. 
+3. Prepare the file `functions/microstructure/load_parameters_*lake_name*.m` by creating a new section for the field campaign. Parameters that can be already written are `param.folder`, `param.instrument`, `param.prof_dir` and `param.config` (SEE MANUAL).
+
+For example:
+
+```
+elseif strcmp(date,'20251127') 
+    param.folder = [general_data_folder,'20251127\Level0\'];
+    param.filename_list={}; % Several files can be listed here
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = '';
+
+    param.instrument='VMP';
+    param.info.prof_dir = 'down';
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=false;
+    param.config.uC2=false;
+```
+
+#### Checking the profiles 
+#### Running the turbulence analysis
 
 ## Structure of the repository 
 
