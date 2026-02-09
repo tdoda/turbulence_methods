@@ -1,7 +1,7 @@
 %ANALYZE_PROFILES Main script to process microstructure data .P files (VMP,
 %microCTD).
 %
-% T.Doda, last version: 30.01.2026
+% T.Doda, last version: 09.02.2026
 %%
 
 close all
@@ -13,8 +13,8 @@ clc
 
 lakename='Zug'; % Options: 'Zug' or 'default' (see load_parameters_Zug function)
 general_data_folder='..\..\data\microCTD\'; % Where fieldwork data is stored
-odas_folder='..\..\functions\odas_v4.4\'; % Where ODAS functions are stored
-functions_folder="..\..\functions\microstructure\"; % Where microstructure functions are stored
+odas_folder='..\odas_v4.4\'; % Where ODAS functions are stored
+functions_folder="..\microstructure\"; % Where microstructure functions are stored
 date_campaign="20260113"; % Should match the date in "load_parameters" function except if "default" is used
 
 turbulence_analysis=false; % If =true, run the full trubulence analysis, if =false just check the profiles
@@ -46,7 +46,9 @@ if modify_cfg
         if exist('cfg_file','var') && ~strcmp(cfg_file,'')
             param.cfgfile=[param.folder,cfg_file];
         else
-            error('A configuration file must be specified')
+            param.cfg_file=''; 
+            warning("No configuration file specified: shear sentivities will be imported from the parameters")
+            %error('A configuration file must be specified')
         end
     end
 end
