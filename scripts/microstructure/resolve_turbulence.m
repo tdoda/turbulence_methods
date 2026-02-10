@@ -214,6 +214,7 @@ SLOW.velocity=Ws;
 SLOW.depth = depth;
 SLOW.temperature = T_JAC;
 SLOW.conductivity = C_corr; %uS/cm
+SLOW.conductivity20 = DATA.Cond_20(iips); %uS/cm
 SLOW.salinity = 1000*Ss; %mg/l
 SLOW.density = sgt;
 SLOW.chlorophyll = Chl_slow;
