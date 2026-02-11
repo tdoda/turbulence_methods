@@ -17,7 +17,7 @@ odas_folder='..\odas_v4.4\'; % Where ODAS functions are stored
 functions_folder="..\microstructure\"; % Where microstructure functions are stored
 date_campaign="20260113"; % Should match the date in "load_parameters" function except if "default" is used
 
-turbulence_analysis=false; % If =true, run the full trubulence analysis, if =false just check the profiles
+turbulence_analysis=false; % If =true, run the full turbulence analysis, if =false just check the profiles
 modify_cfg=true; % Modify the configuration file (if "false", configuration from .P file is used)
 calibrate_FP07=true; % Calibrate FP07
 
