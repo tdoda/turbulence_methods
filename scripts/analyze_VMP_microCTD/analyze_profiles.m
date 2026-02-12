@@ -264,7 +264,9 @@ for kf=1:length(param.filename_list)
         indremove=[];
 
         % Extract coordinates of the profiles
-        indprof_log=find(strcmp(data_logbook.filename,param.filename_list{kf}));
+        if add_coord==true
+            indprof_log=find(strcmp(data_logbook.filename,param.filename_list{kf}));
+        end
         if length(indprof_log)~=Nprf
             warning('Not same number of profiles than in logbook: coordinates not extracted')
             add_coord=false;
