@@ -1,7 +1,7 @@
 %ANALYZE_PROFILES Main script to process microstructure data .P files (VMP,
 %microCTD).
 %
-% T.Doda, last version: 09.02.2026
+% T.Doda, last version: 12.02.2026
 %%
 
 close all
@@ -11,11 +11,11 @@ clc
 
 %% Parameters to adapt
 
-lakename='Zug'; % Options: 'Zug' or 'default' (see load_parameters_Zug function)
-general_data_folder='..\..\data\microCTD\'; % Where fieldwork data is stored
+lakename='Zug'; % Options: 'Zug', 'Geneva' or 'default' (see load_parameters function)
+general_data_folder='..\..\data\'; % Where fieldwork data is stored
 odas_folder='..\odas_v4.4\'; % Where ODAS functions are stored
 functions_folder="..\microstructure\"; % Where microstructure functions are stored
-date_campaign="20260113"; % Should match the date in "load_parameters" function except if "default" is used
+date_campaign=''; % Should match the date (yyyymmdd) in "load_parameters" function except if "default" is used
 
 turbulence_analysis=false; % If =true, run the full turbulence analysis, if =false just check the profiles
 modify_cfg=true; % Modify the configuration file (if "false", configuration from .P file is used)
@@ -33,7 +33,7 @@ ind_plot_spectra = []; % Indices of bins where spectra should be plotted (temper
 show_progress=true;
 
 % To avoid user input
-erase_folder=true;
+erase_folder=true; % If true, if the output folders already exist, they will be erased without asking the user. If false, the user will be asked if they want to erase the folders or stop the code.
 
 
 %% Add paths
@@ -43,7 +43,6 @@ addpath(functions_folder) % Add microstructure functions
 %% Load metadata
 param=load_parameters_Zug(lakename,date_campaign,general_data_folder);
 %param=load_parameters_Geneva(lakename,date_campaign,general_data_folder);
-param.filename_list={'DAT_053'};
 
 if modify_cfg 
     if (~isfield(param,'cfgfile') || strcmp(param.cfgfile,''))
