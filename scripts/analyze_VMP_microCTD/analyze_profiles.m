@@ -17,16 +17,19 @@ odas_folder='..\odas_v4.4\'; % Where ODAS functions are stored
 functions_folder="..\microstructure\"; % Where microstructure functions are stored
 date_campaign=''; % Should match the date (yyyymmdd) in "load_parameters" function except if "default" is used
 
-turbulence_analysis=false; % If =true, run the full turbulence analysis, if =false just check the profiles
+turbulence_analysis=true; % If =true, run the full turbulence analysis, if =false just check the profiles
 modify_cfg=true; % Modify the configuration file (if "false", configuration from .P file is used)
 calibrate_FP07=true; % Calibrate FP07
 
 % If turbulence_analysis=false (check data)
 save_checkdata=true; % If =true, save the "checked" data
 save_checkfig=true; % If =true, save the "checked" figures
+save_checkdata=true; % If =true, save the "checked" data
+save_checkfig=true; % If =true, save the "checked" figures
 
 % If turbulence_analysis=true (run turbulence analysis):
 run_quick_look=false; % Apply quick_look function from Rockland (shear dissipation only)
+run_dissip=true; % Compute dissipation based on Bieito's and Sebastiano's script
 run_dissip=true; % Compute dissipation based on Bieito's and Sebastiano's script
 make_plot_prof = true; % Make profile-related plots.
 ind_plot_spectra = []; % Indices of bins where spectra should be plotted (temperature and shear spectra).
@@ -52,6 +55,9 @@ if modify_cfg
             param.cfg_file=''; 
             warning("No configuration file specified: shear sentivities will be imported from the parameters")
             %error('A configuration file must be specified')
+            param.cfg_file=''; 
+            warning("No configuration file specified: shear sentivities will be imported from the parameters")
+            %error('A configuration file must be specified')
         end
     end
 end
@@ -63,6 +69,14 @@ end
 if ~isfield(param,'atm_press_method')
     warning("No atm pressure method specified: use offset")
     param.atm_press_method='offset';
+end
+
+% Read logbook
+if isfield(param,'logbook')
+    data_logbook = readtable([param.folder,param.logbook,'.csv'], 'PreserveVariableNames', true);
+    add_coord=true;
+else
+    add_coord=false;
 end
 
 % Read logbook
@@ -94,6 +108,11 @@ for kf=1:length(param.filename_list)
     folder_L1 = [param.folder '..\Level1\' folder_out];
     folder_L2 = [param.folder '..\Level2\' folder_out];
     if exist(folder_L1, 'dir') || exist(folder_L2, 'dir')
+        if ~erase_folder
+            gohead=input('>>> Warning: the folders already exist, do you want to remove them and proceed (y/n): ','s');
+        else
+            gohead='y';
+        end
         if ~erase_folder
             gohead=input('>>> Warning: the folders already exist, do you want to remove them and proceed (y/n): ','s');
         else
@@ -220,14 +239,17 @@ for kf=1:length(param.filename_list)
     
     %% Compute salinity and density 
     [data_prof.rhoTS,data_prof.Cond_corr,data_prof.Cond_20,data_prof.Sal,~] = compute_rho_salinity(lakename,data_prof.(param.CTD_T),...
+    [data_prof.rhoTS,data_prof.Cond_corr,data_prof.Cond_20,data_prof.Sal,~] = compute_rho_salinity(lakename,data_prof.(param.CTD_T),...
         data_prof.(param.CTD_C),data_prof.P_slow,true);
 
     if param.config.T1
+        [data_prof.rhoT1S,data_prof.CondT1_corr,data_prof.CondT1_20,data_prof.SalT1,~] = compute_rho_salinity(lakename,data_prof.T1_fast,...
         [data_prof.rhoT1S,data_prof.CondT1_corr,data_prof.CondT1_20,data_prof.SalT1,~] = compute_rho_salinity(lakename,data_prof.T1_fast,...
         interp1(data_prof.P_slow,data_prof.(param.CTD_C),data_prof.P_fast,'linear','extrap'),data_prof.P_fast,true);
     end
     
     if param.config.T2
+        [data_prof.rhoT2S,data_prof.CondT2_corr,data_prof.CondT2_20,data_prof.SalT2,~] = compute_rho_salinity(lakename,data_prof.T2_fast,...
         [data_prof.rhoT2S,data_prof.CondT2_corr,data_prof.CondT2_20,data_prof.SalT2,~] = compute_rho_salinity(lakename,data_prof.T2_fast,...
         interp1(data_prof.P_slow,data_prof.(param.CTD_C),data_prof.P_fast,'linear','extrap'),data_prof.P_fast,true);
     end
@@ -240,6 +262,15 @@ for kf=1:length(param.filename_list)
     if turbulence_analysis
         counter=1;
         indremove=[];
+
+        % Extract coordinates of the profiles
+        indprof_log=find(strcmp(data_logbook.filename,param.filename_list{kf}));
+        if length(indprof_log)~=Nprf
+            warning('Not same number of profiles than in logbook: coordinates not extracted')
+            add_coord=false;
+        end
+
+
 
         % Extract coordinates of the profiles
         indprof_log=find(strcmp(data_logbook.filename,param.filename_list{kf}));
