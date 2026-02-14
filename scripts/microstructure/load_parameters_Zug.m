@@ -75,6 +75,7 @@ if strcmp(param.instrument,'VMP')
     param.unit_Chl='ppb';
     param.unit_Turb='FTU';
     param.info.k_HP_cut = 0.85;
+    param.space_cfg=false;
 elseif strcmp(param.instrument,'microCTD')
     param.SNname='310'; 
     param.CTD_T='JAC_T';
@@ -84,6 +85,7 @@ elseif strcmp(param.instrument,'microCTD')
     param.unit_Chl='ppb';
     param.unit_Turb='FTU';
     param.info.k_HP_cut = 0.5;
+    param.space_cfg=true;
 else
     error('Wrong instrument name')
 end
@@ -307,9 +309,9 @@ elseif strcmp(date,'20251126')
     % Set P offset and sh probe sensitivity
     param.offset_P=-0.15;
     % Use shear sensitivities specified in config file: 
-    param.cfgfile = 'setup_EAWAG_Zug_2025_11_26';
-    param.space_cfg=false;
-    param.atm_press_method='min'; % Options: 'cond' (only for upward),'FP07' (only for upward),'offset','min'
+    param.cfgfile = 'setup_EAWAG_Zug_2025_11_26_updated';
+
+    param.atm_press_method='offset'; % Options: 'cond' (only for upward),'FP07' (only for upward),'offset','min'
     
     param.instrument='VMP';
     param.info.prof_dir = 'down';
@@ -341,6 +343,7 @@ elseif strcmp(date,'20251127')
 elseif strcmp(date,'20260113') 
     param.folder = [general_data_folder,'20260113\Level0\'];
     param.filename_list={'DAT_053','DAT_055','DAT_057','DAT_059'}; % Several files can be listed here
+    param.logbook='Logbook_Zug_20260112'; % csv file
 
     % Set P offset and sh probe sensitivity
     %param.offset_P=0;

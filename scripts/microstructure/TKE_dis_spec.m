@@ -1,4 +1,4 @@
-function [eps_S, MAD_S, MADc, fit_flag_S, kL, kU]=TKE_dis_spec(pres,x0,px0,k1,k2,fn,visco,W,sL,sOV,noise_corr,sh_number,plt,presplt,Tplt)
+function [eps_S, MAD_S, MADc, fit_flag_S, kL, kU, SPECTRUM]=TKE_dis_spec(pres,x0,px0,k1,k2,fn,visco,W,sL,sOV,noise_corr,sh_number,plt,presplt,Tplt)
 
 % GOAL
 % Estimate of TKE dissipation rate eps_S by integration of the measured
@@ -28,8 +28,11 @@ function [eps_S, MAD_S, MADc, fit_flag_S, kL, kU]=TKE_dis_spec(pres,x0,px0,k1,k2
 % fit_flag_S: acceptance flag according to quality metrics: 0 rejected, 1 accepted
 % kL: Lower integration wavenumber (cpm)
 % kU: Upper integration wavenumber (cpm)
+% SPECTRUM: structure array containing all information to plot the spectra
+% [added by T. Doda, 10.02.2026]
 
-% Last version: 12.01.2026
+
+% Last version: 10.02.2026
 
 %% Initialization
 eps_S=NaN;kK=NaN;epsN=NaN;kKN=NaN;
@@ -221,6 +224,16 @@ if k(2)<k2
     if MAD_S<2*MADc
         fit_flag_S = 1;
     end
+
+    %% Export spectra information (T. Doda, 10.02.2026)
+    SPECTRUM.k      = k;        % Wavenumbers used for the shear spectrum
+    SPECTRUM.PSD0   = PSD0;     % Raw / corrected-for-response shear spectrum
+    SPECTRUM.PSD    = PSD;      % Denoised shear spectrum
+    SPECTRUM.ind_fit=1:ik3; % Indices of wavenumbers used for fitting
+    SPECTRUM.PSD_theo    = NAS;      % Nasmyth spectrum (iteration result)
+    SPECTRUM.kK     = kK;       % Kolmogorov wavenumber
+    SPECTRUM.kn   = fn/W;     % 90% of the anti-aliasing cutoff wavenumber
+    SPECTRUM.k_lim  = 150;      % Hard upper k-limit used in plot
     
     %% Plots
     if plt~=0        
