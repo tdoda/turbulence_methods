@@ -1,7 +1,7 @@
 %ANALYZE_PROFILES Main script to process microstructure data .P files (VMP,
 %microCTD).
 %
-% T.Doda, last version: 12.02.2026
+% T.Doda, last version: 13.02.2026
 %%
 
 close all
@@ -79,14 +79,6 @@ else
     add_coord=false;
 end
 
-% Read logbook
-if isfield(param,'logbook')
-    data_logbook = readtable([param.folder,param.logbook,'.csv'], 'PreserveVariableNames', true);
-    add_coord=true;
-else
-    add_coord=false;
-end
-
 %% Analyze each data file
 
 for kf=1:length(param.filename_list)
@@ -108,11 +100,6 @@ for kf=1:length(param.filename_list)
     folder_L1 = [param.folder '..\Level1\' folder_out];
     folder_L2 = [param.folder '..\Level2\' folder_out];
     if exist(folder_L1, 'dir') || exist(folder_L2, 'dir')
-        if ~erase_folder
-            gohead=input('>>> Warning: the folders already exist, do you want to remove them and proceed (y/n): ','s');
-        else
-            gohead='y';
-        end
         if ~erase_folder
             gohead=input('>>> Warning: the folders already exist, do you want to remove them and proceed (y/n): ','s');
         else
@@ -198,7 +185,7 @@ for kf=1:length(param.filename_list)
         end
         
         for kprof=1:Nprf
-            fprintf(">>>>> Profile %d/%d\n",kprof,Nprf)
+            fprintf(">>> Profile %d/%d\n",kprof,Nprf)
             ql_info.profile_num=kprof;
             DISS_QL{kprof}=quick_look(modified_data_file,pmin_ql,pmax_ql,ql_info);
             if isempty(DISS_QL{kprof}) % The profile number specified is larger than the number profiles detected by QUICK_LOOK
@@ -239,17 +226,14 @@ for kf=1:length(param.filename_list)
     
     %% Compute salinity and density 
     [data_prof.rhoTS,data_prof.Cond_corr,data_prof.Cond_20,data_prof.Sal,~] = compute_rho_salinity(lakename,data_prof.(param.CTD_T),...
-    [data_prof.rhoTS,data_prof.Cond_corr,data_prof.Cond_20,data_prof.Sal,~] = compute_rho_salinity(lakename,data_prof.(param.CTD_T),...
         data_prof.(param.CTD_C),data_prof.P_slow,true);
 
     if param.config.T1
-        [data_prof.rhoT1S,data_prof.CondT1_corr,data_prof.CondT1_20,data_prof.SalT1,~] = compute_rho_salinity(lakename,data_prof.T1_fast,...
         [data_prof.rhoT1S,data_prof.CondT1_corr,data_prof.CondT1_20,data_prof.SalT1,~] = compute_rho_salinity(lakename,data_prof.T1_fast,...
         interp1(data_prof.P_slow,data_prof.(param.CTD_C),data_prof.P_fast,'linear','extrap'),data_prof.P_fast,true);
     end
     
     if param.config.T2
-        [data_prof.rhoT2S,data_prof.CondT2_corr,data_prof.CondT2_20,data_prof.SalT2,~] = compute_rho_salinity(lakename,data_prof.T2_fast,...
         [data_prof.rhoT2S,data_prof.CondT2_corr,data_prof.CondT2_20,data_prof.SalT2,~] = compute_rho_salinity(lakename,data_prof.T2_fast,...
         interp1(data_prof.P_slow,data_prof.(param.CTD_C),data_prof.P_fast,'linear','extrap'),data_prof.P_fast,true);
     end
@@ -264,21 +248,59 @@ for kf=1:length(param.filename_list)
         indremove=[];
 
         % Extract coordinates of the profiles
-        if add_coord==true
-            indprof_log=find(strcmp(data_logbook.filename,param.filename_list{kf}));
-        end
-        if length(indprof_log)~=Nprf
-            warning('Not same number of profiles than in logbook: coordinates not extracted')
-            add_coord=false;
-        end
+        if add_coord==true % User want to extract metadata
+            indprof_log=find(strcmp(data_logbook.filename,param.filename_list{kf}));          
+            if length(indprof_log)==Nprf
+                add_coord_prof=true; % Extract metadata for this file
+            else
+                warning('Not same number of profiles than in logbook: %d profiles detected in file %s, but %d profiles listed in logbook',Nprf,param.filename_list{kf},length(indprof_log))
+                extract_meta=2;
+                while extract_meta ~= 0 &&  extract_meta ~= 1
+                    extract_meta=input('>>> Skip metadata (0) or enter it manually (1)?');
+                end
 
-
-
-        % Extract coordinates of the profiles
-        indprof_log=find(strcmp(data_logbook.filename,param.filename_list{kf}));
-        if length(indprof_log)~=Nprf
-            warning('Not same number of profiles than in logbook: coordinates not extracted')
-            add_coord=false;
+                if extract_meta==0
+                    add_coord_prof=false;
+                else
+                    add_coord_prof=true;
+                    newfilename=[param.filename_list{kf},'_added'];
+                    for kprof = 1:Nprf % Ask the user for metadata and add them to the table
+                        newRow = data_logbook(min(indprof_log),:); 
+                        fprintf(">>> Profile %d/%d in %s (%s):\n",kprof,Nprf,param.filename_list{kf},data_prof.tdate_slow(data_prof.ind_prof_slow_initial(1,kprof)))
+                        profname=[];xcoord=[]; ycoord=[];
+                        while isempty(profname) 
+                            profname=input(">>>>>> Profile name:",'s');
+                        end
+                        while isempty(xcoord) || isnan(xcoord)
+                            xcoord=input(">>>>>> X coordinate (1903/LV03):",'s');
+                            try 
+                                xcoord=str2double(xcoord);
+                            catch
+                                xcoord=[];
+                            end
+                        end
+                        while isempty(ycoord) || isnan(ycoord)
+                            ycoord=input(">>>>>> Y coordinate (1903/LV03):",'s');
+                            try 
+                                ycoord=str2double(ycoord);
+                            catch
+                                ycoord=[];
+                            end
+                        end
+                        newRow.filename={newfilename};
+                        newRow.profID=kprof;
+                        newRow.X_m=xcoord;
+                        newRow.Y_m=ycoord;
+                        newRow.Name_profile={profname};
+                        data_logbook(end+1,:)=newRow;
+                    end
+                    indprof_log=find(strcmp(data_logbook.filename,newfilename)); % Row indices of the added metadata         
+                end   
+                
+            end
+                
+        else
+            add_coord_prof=false; % Do not extract metadata for this profile
         end
 
 
@@ -287,11 +309,11 @@ for kf=1:length(param.filename_list)
             
             % Remove profiles that are too short:
             if diff(ind_prof_fast(:,kprof))<2*1024 % Lower than 2*nfft (minimum length for function csd_odas)
-                warning('Not enough samples in the profile %d of %s: profile not considered',...
+                warning('>>>>>> Not enough samples in the profile %d of %s: profile not considered',...
                     kprof,filename0)
-                indremove(end+1)=kprof;
+                indremove(end+1)=kprof; % Store the indices for info (not used). 
                 if ~isempty(DISS_QL)
-                    DISS_QL(kprof)=[];
+                    DISS_QL(kprof)=[]; % Other structure will not include info on the current profile because counter doesn't increase
                 end
                 continue
             end
@@ -407,12 +429,22 @@ for kf=1:length(param.filename_list)
             end
 
             param_prof=param;
-            if add_coord
-                param_prof.x_coord=data_logbook.X_m(indprof_log(kprof));
-                param_prof.y_coord=data_logbook.Y_m(indprof_log(kprof));
+            % Add filename:
+            param_prof.filename=param.filename_list{kf};
+            % Add coodinates & profile name:
+            if add_coord_prof
+                if ismember("X_m", data_logbook.Properties.VariableNames)
+                    param_prof.x_coord=data_logbook.X_m(indprof_log(kprof));
+                end
+                if ismember("Y_m", data_logbook.Properties.VariableNames)
+                    param_prof.y_coord=data_logbook.Y_m(indprof_log(kprof));
+                end
+                if ismember("Name_profile", data_logbook.Properties.VariableNames)
+                    profname_cell=data_logbook.Name_profile(indprof_log(kprof));
+                    param_prof.profname=profname_cell{:};
+                end
             end
             export_to_netcdf([folder_L2,'..\L2_',param.filename_list{kf},'_',param.info.prof_dir,'_prof',num2str(counter),'.nc'],DATA_NC,param_prof,'L2')
-            
             counter=counter+1;
         end
     
@@ -434,7 +466,7 @@ for kf=1:length(param.filename_list)
             % Comparison epsilon and diffusivity from sh and T
             % plot_comparison(BINNED,[1:length(inPall)],[filename '_all'],folder_main,folder_L2);close all;
         else
-            warning('No profile for %s: data not saved',param.filename_list{kf})
+            warning('>>> No profile for %s: data not saved',param.filename_list{kf})
         end
 
     else % Quick check of the profiles
