@@ -17,6 +17,7 @@ function [] = check_data(param,data_prof,savedata,savefig,simple_prof,change_axi
 %   None
 %
 % T.Doda, 30.01.2026
+% Modifications for paths: L. Noël du Payrat 17.08.2026
 
 
 %% Parameters 
@@ -43,7 +44,7 @@ axlim_dT=[-3,3];
 %% Analyze each data file
 
 if savedata
-    data_folder=[param.folder,'..\Check_data'];
+    data_folder=fullfile(param.folder,'..', 'Check_data');
     if ~exist(data_folder, 'dir')
         mkdir(data_folder)
     end
@@ -51,7 +52,7 @@ if savedata
     
 end
 
-output_data_file=[data_folder,'\data_',data_prof.filename,'.mat'];
+output_data_file=fullfile(param.folder, ['data_', data_prof.filename,'.mat']);
     
 if exist(output_data_file,'file')
     analyze_raw=input(sprintf('Mat file already exists for %s: load it (1) or re-analyze the data (2)?',data_prof.filename));
@@ -118,7 +119,7 @@ end
 
 
 %% Plot the profile data with 10 subplots
-fig_folder=[param.folder,'..\Check_figures'];
+fig_folder=fullfile(param.folder,'..', 'Check_figures');
 if savefig
     if ~exist(fig_folder, 'dir')
         %rmdir([param.folder,'Check_figures'],'s')
@@ -153,8 +154,8 @@ if ~simple_prof
     linkaxes([ax1,ax2],'x')
 
     if savefig
-        saveas(gcf,[param.folder,'..\Check_figures\pressure_',erase(DATA.filename,'_'),'.fig'])
-        exportgraphics(gcf,[param.folder,'..\Check_figures\pressure_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.png'],'Resolution',400)
+        saveas(gcf,fullfile(param.folder,'..', 'Check_figures', ['pressure_',erase(DATA.filename,'_'),'.fig']))
+        exportgraphics(gcf,fullfile(param.folder,'..','Check_figures',['pressure_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.png']),'Resolution',400)
     end
 
     % 2. Profiles
@@ -321,8 +322,8 @@ if ~simple_prof
             axprof7,axprof7_top,axprof8,axprof8_top,axprof9],'y');
 
         if savefig
-            saveas(gcf,[fig_folder,'\profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.fig'])
-            exportgraphics(gcf,[fig_folder,'\profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.png'],'Resolution',400)
+            saveas(gcf,fullfile(fig_folder,['profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.fig']))
+            exportgraphics(gcf,fullfile(fig_folder,['profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.png']),'Resolution',400)
             disp('Figure saved')
         end
     end
@@ -421,8 +422,8 @@ if simple_prof
 
         
         if savefig
-            saveas(gcf,[fig_folder,'\simple_profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.fig'])
-            exportgraphics(gcf,[fig_folder,'\simple_profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.png'],'Resolution',400)
+            saveas(gcf,fullfile(fig_folder,['simple_profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.fig']))
+            exportgraphics(gcf,fullfile(fig_folder,['simple_profile_',erase(DATA.filename,'_'),'_P',num2str(kprof),'.png']),'Resolution',400)
             disp('Figure saved')
         end
     end

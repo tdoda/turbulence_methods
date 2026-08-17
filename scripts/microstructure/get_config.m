@@ -20,6 +20,7 @@ function [data_prof,modified_data_file,cfgfile_mod] = get_config(param,data_prof
 % file. Default=True.
 %
 % T. Doda based on S. Piccolroaz, last version: 09.02.2026
+% Louise Noël du Payrat 17.08.2026 - Modification
 %% Set up parameters
 if nargin<6
     space_cfg=true;
@@ -33,10 +34,11 @@ end
 
 filename0 = param.filename_list{kf};
 filename = [filename0,'_patched'];
-original_data_file=[param.folder,filename0,'.P'];
-modified_data_file=[folder_out,filename,'.P'];
 
-cfgfile_original=[folder_out 'setup_' filename0 '_original' '.cfg'];
+original_data_file=fullfile(param.folder,[filename0,'.P']);
+modified_data_file=fullfile(folder_out, [filename,'.P']);
+file_setup_name=['setup_' filename0 '_original'];
+cfgfile_original=fullfile(folder_out,  [file_setup_name '.cfg']);
 
 extract_setupstr(original_data_file, cfgfile_original); % Save the config file from the original .P file
 
@@ -48,7 +50,7 @@ copyfile(original_data_file,modified_data_file); % Create a copy of the P file w
 
 if modify_cfg
     disp('>>> Modification of the configuration file...'); 
-    cfgfile_mod=[folder_out 'setup_' filename0 '_modified'];
+    cfgfile_mod=fullfile(folder_out,  file_setup_name);
     
     
     
@@ -63,8 +65,8 @@ if modify_cfg
                 error("Stop the analysis: please update the config file or change the pressure correction method")
             end
         end
-        patch_setupstr(modified_data_file,[param.folder,param.cfgfile]);
-        copyfile([param.folder param.cfgfile '.cfg'],[cfgfile_mod '.cfg']); fileattrib([cfgfile_mod '.cfg'],'+w');
+        patch_setupstr(modified_data_file,fullfile(param.folder,param.cfgfile));
+        copyfile(fullfile(param.folder, [param.cfgfile '.cfg']),[cfgfile_mod '.cfg']); fileattrib([cfgfile_mod '.cfg'],'+w');
     else % Use the configuration specified in the parameters
         % Extract the configuration file from the P file and save it as
         % a temporary file:

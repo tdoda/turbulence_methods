@@ -13,6 +13,7 @@ function [param] = load_parameters_Geneva(lakename,date,general_data_folder,dire
 %   param (structure): parameters specific to the campaign
 %
 % T. Doda, 06.12.2024
+% L. Noël du Payrat 17.08.2026 - Modification
 %% Default values
 
 param.info.mindur_detect = 30; % Minimim duration of a profile [s]
@@ -34,6 +35,10 @@ param.info.despike_sh  = [ 8  0.5 0.04]; % Parameters to remove spikes in shear 
 param.info.despike_A = [8 0.5000 0.0400]; % Parameters to remove spikes in accelerometer data (see odas function "despike")
 param.info.ksfact=0.04; % Upper bound of the inertial-convective subrange, as in Steinbuck et al. (2009)
 param.info.Snfact=1.55; % Maximum acceptable signal to noise ratio 1.55, as in Goto et al. (2016)
+
+param.info.minKS = 0.1; % TODO: L. Noël du Payrat: this is the defaut from the old method, should be updated with real value!!
+param.info.maxKS = 14;% TODO: L. Noël du Payrat: this is the defaut from the old method, should be updated with real value!!
+
 
 %% Campaign-specific values (can overwrite default values)
 if strcmp(lakename,"Geneva")
@@ -198,6 +203,7 @@ function [param] = load_campaign_Geneva(param,date,general_data_folder)
 %   param (structure): parameters specific to the campaign
 %
 % T. Doda, 29.11.2024
+% Modified - L.Noël du Payrat, 17.08.2026
 %% Values for all campaigns
 param.info.system = 'Geneva';
 param.instrument='microCTD';
@@ -247,7 +253,13 @@ elseif strcmp(date,'20250822_up')
     
     param.SNname='310';
     param.info.prof_dir = 'up';
+
 %**************************************************************************
+%**************************************************************************
+% 2026 07 31
+%**************************************************************************
+%**************************************************************************
+
 elseif strcmp(date,'20250822_down') 
     param.folder = [general_data_folder,'20250822\Level0\'];
     param.filename_list={'DAT_047'};
@@ -266,13 +278,395 @@ elseif strcmp(date,'20250822_down')
     
     param.SNname='310';
     param.info.prof_dir = 'down';
+
 %**************************************************************************
+%**************************************************************************
+% 2026 08 05
+%**************************************************************************
+%**************************************************************************
+
+elseif strcmp(date,'20260805_down_group1') 
+    param.folder = fullfile(general_data_folder,'20260805', 'Level0');
+    param.filename_list={'DAT_008'};
+
+    param.logbook = 'Logbook_20260805' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DAT_008'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+    
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+    %**************************************************************************
+
+
+elseif strcmp(date,'20260805_down_group2') 
+    param.folder = fullfile(general_data_folder,'20260805', 'Level0');
+    param.filename_list={'DAT_009'};
+
+    param.logbook = 'Logbook_20260805' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DAT_009'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+    
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+
+
+%**************************************************************************
+%**************************************************************************
+% 24hrs, 12 13 august 2026
+
+% profiles UP: SETUP_UP
+% profiles down: SETUP_DOWN
+%**************************************************************************
+%**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_020_D') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_020'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DOWN'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+    param.atm_press_method= 'offset';
+
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_023_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_023'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_024_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_024'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+
+    %**************************************************************************
+elseif strcmp(date,'2026081213_DAT_026_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_026'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+
+    %**************************************************************************
+elseif strcmp(date,'2026081213_DAT_027_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_027'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_028_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_028'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_029_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_029'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+
+    %**************************************************************************
+
+
+elseif strcmp(date,'2026081213_DAT_030_D') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_030'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DOWN'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+    param.atm_press_method= 'offset';
+
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_031_D') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_031'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DOWN'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+    param.atm_press_method= 'offset';
+
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_032_D') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_032'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DOWN'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+    param.atm_press_method= 'offset';
+
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_033_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_033'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_034_U') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_034'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_UP'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+    param.atm_press_method= 'cond';
+
+    %**************************************************************************
+
+elseif strcmp(date,'2026081213_DAT_035_D') 
+    param.folder = fullfile(general_data_folder,'2026081213', 'Level0');
+    param.filename_list={'DAT_035'};
+
+    param.logbook = 'Logbook_2026081213' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DOWN'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=false;
+    param.config.uC1=true;
+    param.config.uC2=false;
+
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+    param.atm_press_method= 'offset';
+
+
+
+%**************************************************************************
+%**************************************************************************
+%
+%**************************************************************************
+%**************************************************************************
+
 end
-
-
-
-
-
 
 end
 

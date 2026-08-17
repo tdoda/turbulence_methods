@@ -1,6 +1,6 @@
 function [data_prof,press_atm]=correct_pressure(data_prof,param,ind_prof_slow,ind_prof_fast,kprof,make_plot,folder_out)
 %CORRECT_PRESSURE Compute pressure with respect to the atmospheric
-%pressure.
+%pressure. 
 %
 %   INPUTS:
 %   data_prof (structure): profiling data in a given data file.
@@ -22,6 +22,7 @@ function [data_prof,press_atm]=correct_pressure(data_prof,param,ind_prof_slow,in
 %   to get the pressure relative to the air [dbar].
 %
 % T. Doda based on S. Piccolroaz, last version: 12.01.2026
+% Louise Noël du payrat 17.08.2026 - Modification
 %% Compute pressure relative to the atmosphere
 
 % Computed variables:
@@ -151,7 +152,7 @@ if make_plot
         plot(ind_prof_fast_plot,normalize(data_prof.T1_fast(ind_prof_fast_plot))/2,'.-r');
         plot(ind_prof_fast_plot,data_prof.W_fast(ind_prof_fast_plot),'.-k');
         plot(ind_prof_fast_plot,data_prof.sh1(ind_prof_fast_plot)/50,'.-m'); hold on
-        plot(ind_prof_slow_plot,normalize(data_prof.(CTD_C)(ind_prof_slow_x))/2,'.-b'); hold on
+        plot(ind_prof_slow_plot,normalize(data_prof.(param.CTD_C)(ind_prof_slow_x))/2,'.-b'); hold on
         plot([ind_prof_fast_plot(1) ind_prof_fast_plot(end)],[0 0],'--k');
         if ~isempty(istop)
             plot([ind_prof_fast_plot(istop) ind_prof_fast_plot(istop)],[-1 1],'--g');
@@ -187,11 +188,12 @@ if make_plot
 
     linkaxes([ax1,ax2],'y')
 
-    if ~exist([folder_out,'Figures'],'dir')
-        mkdir([folder_out,'Figures'])
+    fig_folder = fullfile(folder_out,'Figures');
+    if ~exist(fig_folder,'dir')
+        mkdir(fig_folder)
     end
-    saveas(gcf,[folder_out,'Figures\Pcorrection',num2str(kprof),'.fig'])
-    exportgraphics(gcf,[folder_out,'Figures\Pcorrection',num2str(kprof),'.png'],'Resolution',400)
+    saveas(gcf,fullfile(fig_folder,['Pcorrection',num2str(kprof),'.fig']))
+    exportgraphics(gcf,fullfile(fig_folder,['Pcorrection',num2str(kprof),'.png']),'Resolution',400)
 
 end
 

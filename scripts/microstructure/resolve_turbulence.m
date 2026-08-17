@@ -25,6 +25,7 @@ function [BIN,SLOW,FAST] = resolve_turbulence(DATA, kprof, param,folder_out,prof
 %   FAST (structure): high-frequency quantities.
 %
 % T. Doda based on S. Piccolroaz, last version: 22.01.2026
+% L. Noël du Payrat 17.08.2026 - Modification
 %% Set up parameters
 if nargin<6
     make_plot_prof=false;
@@ -429,11 +430,11 @@ FAST.AA_filt = AA;
 if make_plot_prof
     plot_profile(DATA,SLOW,FAST,param,pmaxplot)
 
-    if ~exist([folder_out,'Figures'],'dir')
-        mkdir([folder_out,'Figures'])
+    if ~exist(fullfile(folder_out,'Figures'),'dir')
+        mkdir(fullfile(folder_out,'Figures'))
     end
-    saveas(gcf,[folder_out,'Figures/profile',num2str(kprof,'%02d'),'.fig']);
-    exportgraphics(gcf,[folder_out,'Figures/profile',num2str(kprof,'%02d'),'.png'],'Resolution',400);
+    saveas(gcf,fullfile(folder_out, 'Figures', ['profile',num2str(kprof,'%02d'),'.fig']));
+    exportgraphics(gcf,fullfile(folder_out,'Figures', ['profile',num2str(kprof,'%02d'),'.png']),'Resolution',400);
 end
 
 %% Defines output variables in BIN structure
@@ -733,13 +734,13 @@ for i = 1:n_pres %length(pres)
         % Save all open figures
         hfig = get(0, 'Children');
         for kf=1:length(hfig)
-            path_spectra=[folder_out,'Figures/spectra_profile_',num2str(kprof,'%02d')];
+            path_spectra=fullfile(folder_out,'Figures',['spectra_profile_',num2str(kprof,'%02d')]);
             if ~exist(path_spectra,"dir")
                 mkdir(path_spectra) % Create folder
             end
             % saveas(gcf,[path_spectra,'/bin',num2str(i),'_fig',num2str(kf),'.fig']);
-            exportgraphics(gcf,[path_spectra,'/bin',num2str(i),'_press',num2str(BIN.pressure(i)),'_fig',num2str(kf),'.png'],'Resolution',400);
-
+            exportgraphics(gcf,fullfile(path_spectra,'bin',[num2str(i),'_press',num2str(BIN.pressure(i)),'_fig',num2str(kf),'.png']),'Resolution',400);
+ 
 
         end
 
@@ -789,7 +790,8 @@ if run_dissip
         %no flags, do nothing
     else
         flagname = sprintf('flag_profile%.0f.txt', kprof);
-        fido = fopen(strcat(folder_out,flagname),'wt');
+        flagfile = fullfile(folder_out,flagname);
+        fido = fopen(flagfile,'wt');
         if flagvib > 0
             fprintf(fido,'flagged due to excessive vibrations\n');
         end
@@ -847,11 +849,11 @@ if run_dissip
     if make_plot_prof
         plot_bin_profile(SLOW,BIN,param)
 
-        if ~exist([folder_out,'Figures'],'dir')
-            mkdir([folder_out,'Figures'])
+        if ~exist(fullfile(folder_out,'Figures'),'dir')
+            mkdir(fullfile(folder_out,'Figures'))
         end
-        saveas(gcf,[folder_out,'Figures/results_',num2str(kprof,'%02d'),info.prof_dir,'.fig'])
-        exportgraphics(gcf,[folder_out,'Figures/results_',num2str(kprof,'%02d'),info.prof_dir,'.png'],'Resolution',400)
+        saveas(gcf,fullfile(folder_out,'Figures',['results_',num2str(kprof,'%02d'),info.prof_dir,'.fig']))
+        exportgraphics(gcf,fullfile(folder_out,'Figures', ['results_',num2str(kprof,'%02d'),info.prof_dir,'.png']),'Resolution',400)
     end
 end
 
