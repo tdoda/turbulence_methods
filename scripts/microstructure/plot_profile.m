@@ -3,7 +3,8 @@ function [] = plot_profile(DATA,SLOW,FAST,param,pmaxplot)
 %   Detailed explanation goes here
 
 info=param.info;
-pplot=[info.pmin,info.pmax];
+% pplot=[info.pmin,info.pmax]; 
+pplot = [info.pmin, max(SLOW.pressure,[],'omitnan')];
 
 
 % 1. Pressure time series
@@ -65,16 +66,34 @@ set(gca,'yticklabel',[])
 
 % 4. Velocity and inclination
 ax1=subplot(4,4,[8,12,16]);
-plot(FAST.velocity,FAST.pressure,'-k'); hold on;
-plot(get(gca,'xlim'),[pmaxplot pmaxplot],'--k')
-set(gca,'ydir','reverse');
-xlabel('W (m/s)');yticklabels([]);ylim(pplot);
+
+plot(FAST.velocity,FAST.pressure,'-k'); 
+hold(ax1,'on');
+plot(ax1,get(ax1,'xlim'),[pmaxplot pmaxplot],'--k');
+set(ax1,'ydir','reverse');
+xlabel(ax1,'W (m/s)');
+yticklabels(ax1, []);
+ylim(ax1,pplot);
+
 if ~isempty(find(~isnan(SLOW.Incl_x),1)) % At least one non NaN value
     ax2=axes('Position',ax1.Position,'XAxisLocation','top',...
         'YAxisLocation','right','color','none',...
-        'xColor','r','yColor','k');
-    set(ax1,'box','off')
-    line(SLOW.Incl_x,SLOW.pressure,'color','r'); set(gca,'ydir','reverse');
+        'xColor','r','yColor','none');
+
+    hold(ax2,'on');
+    plot(ax2, SLOW.Incl_x, SLOW.pressure,'r');
+    set(ax2,'YDir','reverse');
+    xlabel(ax2,'Inclination [°]');
+    xlim(ax2,[-5 5]);
+    ylim(ax2,pplot);
+
+    ax2.YTick = [];
+    ax2.YColor = 'none';
+    linkaxes([ax1 ax2],'y');
+
+    %line(SLOW.Incl_x,SLOW.pressure,'color','r'); 
+    
+    set(gca,'ydir','reverse');
     xlabel('Inclination [°]')
     yticklabels([]); xlim([-5 5]);
 end

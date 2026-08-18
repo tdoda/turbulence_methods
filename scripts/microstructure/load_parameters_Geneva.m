@@ -278,6 +278,56 @@ elseif strcmp(date,'20250822_down')
     
     param.SNname='310';
     param.info.prof_dir = 'down';
+%**************************************************************************
+%**************************************************************************
+% 2026 0731
+%**************************************************************************
+%**************************************************************************
+
+elseif strcmp(date,'20260731_DAT_005_D') 
+    param.folder = fullfile(general_data_folder,'20260731', 'Level0');
+    param.filename_list={'DAT_005'};
+
+    param.logbook = 'Logbook_20260731' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DAT_005'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+    
+    param.SNname='310';
+    param.info.prof_dir = 'down';
+    %**************************************************************************
+
+
+elseif strcmp(date,'20260731_DAT_006_U') 
+    param.folder = fullfile(general_data_folder,'20260731', 'Level0');
+    param.filename_list={'DAT_006'};
+
+    param.logbook = 'Logbook_20260731' ;
+
+    % Set P offset and sh probe sensitivity
+    % param.offset_P=-0.33;
+    % Use shear sensitivities specified in config file: 
+    param.cfgfile = 'SETUP_DAT_006'; % without the extension .cfg
+
+    param.config.T1=true;
+    param.config.T2=true;
+    param.config.S1=true;
+    param.config.S2=true;
+    param.config.uC1=false;
+    param.config.uC2=false;
+    
+    param.SNname='310';
+    param.info.prof_dir = 'up';
+
 
 %**************************************************************************
 %**************************************************************************
