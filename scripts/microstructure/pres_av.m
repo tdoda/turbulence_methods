@@ -16,6 +16,7 @@ function [X,sX]=pres_av(pres0,x,pres,pint,fact,show)
 
 %
 % T. Doda based on S. Piccolroaz, 18.12.2024
+% Louise Noël du Payrat 17.08.2026 - Modification
 %%
 if nargin<6
     show=false;
@@ -35,14 +36,14 @@ if isempty(nn)
 end
 for i=1:nn
     x0=x(pres0>=pres(i)-0.5*pint & pres0<=pres(i)+0.5*pint);
-    X(i)=nanmean(x0);
-    sX(i)=nanstd(x0);
+    X(i)=mean(x0, 'omitmissing');
+    sX(i)=std(x0, 'omitmissing');
 
     if fact>0
         iiout=find(x0>X(i)+fact*sX(i) | x0<X(i)-fact*sX(i));
         x0(iiout)=NaN;
-        X(i)=nanmean(x0);
-        sX(i)=nanstd(x0);
+        X(i)=mean(x0, 'omitmissing');
+        sX(i)=std(x0, 'omitmissing');
         if show
             fprintf('\n Depth: %1.2f m, ndel/ntot: %d/%d',pres(i),numel(iiout),numel(x0));
         end

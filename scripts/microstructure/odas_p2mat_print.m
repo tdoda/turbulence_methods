@@ -208,6 +208,7 @@
 %           list of things to check for.
 % - 2025-11-24 (TD) Add an option to not print the matrix and channels by
 %           calling read_odas_print
+% - 2026-08-17 (L. Noël du Payrat) update path names for mac compatibility)
 % ==============================================
 
 function result = odas_p2mat_print( fname,print_info, varargin )
@@ -318,7 +319,7 @@ errormsg = sprintf('Unable to find input file: %s', p.fname);
 
 % First check if a mat-file alrady exists. If so, there is no conversion or
 % any other action.
-[mmP,mmN,mmE,matname_full] = file_with_ext([mP filesep mN], {'.mat','.MAT'});
+[mmP,mmN,mmE,matname_full] = file_with_ext(fullfile(mP, mN), {'.mat','.MAT'});
 if ~isempty(matname_full)
     disp(['Returning data from existing MAT-file: ' matname_full]);
     result = load(matname_full);
@@ -346,7 +347,7 @@ if ~isempty(matname_full)
         return
     end
 end
-matname_full = [mP filesep mN '.mat'];
+matname_full = fullfile(mP,  [mN '.mat']);
 
 % So, we next check this file for bad buffers
 bad_records = check_bad_buffers(fname_full);

@@ -100,10 +100,12 @@ if make_plot
     title(gca,'After calibration')
 
     subplot(1,3,3) % x-x comparison after calibration
-    leg3={};
+    leg3={}; 
     p3=[];
     if param.config.T1
-        p3(end+1)=plot(data_prof.(param.CTD_T),interp1(data_prof.P_fast,data_prof.T1_fast,data_prof.P_slow),'.');
+        [Puniq, ia] = unique(data_prof.P_fast, 'stable');
+        p3(end+1) = plot(data_prof.(param.CTD_T), interp1(Puniq, data_prof.T1_fast(ia), data_prof.P_slow), '.');
+        % L.Noël: previously, but problems of duplicates met on some profiles: p3(end+1)=plot(data_prof.(param.CTD_T),interp1(data_prof.P_fast,data_prof.T1_fast,data_prof.P_slow),'.');
         hold on
         leg3{end+1}='T1';
     end
@@ -117,11 +119,11 @@ if make_plot
     legend(p3,leg3)
 
     
-    if ~exist([folder_out,'Figures'],'dir')
-        mkdir([folder_out,'Figures'])
+    if ~exist(fullfile(folder_out,'Figures'),'dir')
+        mkdir(fullfile(folder_out,'Figures'))
     end
-    saveas(gcf,[folder_out,'Figures\FP07_calibration.fig'])
-    exportgraphics(gcf,[folder_out,'Figures\FP07_calibration.png'],'Resolution',400)
+    saveas(gcf, fullfile(folder_out,'Figures', 'FP07_calibration.fig'))
+    exportgraphics(gcf,fullfile(folder_out,'Figures', 'FP07_calibration.png'),'Resolution',400)
 
 end
 

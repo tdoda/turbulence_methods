@@ -1,12 +1,9 @@
+%% 
 %ANALYZE_PROFILES Main script to process microstructure data .P files (VMP,
 %microCTD).
 %
 % T.Doda, last version: 12.02.2026
-% L.Noël du Payrat, 17.08.2026 - Modification for fullfile. 
-%       Nb: i found more convenient to have copy of this .m script for each processing with the corresponding parameters.
-%       so i never used this file itself, but only local copies kept in another folder
-%       using this file instead of the one in the notes example folder might cause path issues
-%       please refer to the readme in the notes example_processing_folder for more information
+% L. Noël du Payrat
 
 %%
 
@@ -24,7 +21,7 @@ lakename='Geneva'; % Options: 'Zug', 'Geneva' or 'default' (see load_parameters 
 general_data_folder=fullfile('..','data'); % Where fieldwork data is stored --windows only?
 odas_folder=fullfile('..','..', 'turbulence_methods','scripts', 'odas_v4.4'); % Where ODAS functions are stored
 functions_folder=fullfile('..','..', 'turbulence_methods','scripts', 'microstructure'); % Where microstructure functions are stored
-date_campaign=['']; % TODO: Should match the date (yyyymmdd) in "load_parameters" function except if "default" is used
+date_campaign=['2026081213_DAT_024_U']; % TODO: Should match the date (yyyymmdd) in "load_parameters" function except if "default" is used
 if isempty(date_campaign)
     warning("No campaign date filled in line 28 of analyse_profile.m " + ...
             "(check or prepare your (preferably) local copy)")
